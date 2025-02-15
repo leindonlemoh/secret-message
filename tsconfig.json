@@ -23,7 +23,9 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/utils/supabase/deleteUser.js"
+    "src/utils/supabase/deleteUser.js",
+    "src/app/components/UserList.jsx",
+    "src/app/components/FriendRequests.jsx"
   ],
   "exclude": ["node_modules"]
 }

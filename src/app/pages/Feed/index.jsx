@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "../../../utils/supabase/client";
 const Feed = () => {
   const [messagesContent, setMessagesContent] = useState([]);
+
   const fetchPost = async () => {
-    const supabase = await createClient();
+    const supabase = createClient();
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
     const { data: messages, error } = await supabase
-      .from("messages")
+      .from("message")
       .select("*")
       .order("created_at", { ascending: false });
 

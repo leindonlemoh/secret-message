@@ -36,25 +36,6 @@ const Post = ({ content, setIsLoading, fetchPost }) => {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const supabase = createClient(); // Create the Supabase client
-
-      // Fetch all data from 'auth.users' table
-      const {
-        data: { users },
-        error,
-      } = await supabase.auth.admin.listUsers();
-
-      if (error) {
-        console.error("Error fetching users:", error);
-      } else {
-        console.log("Fetched users:", data);
-      }
-    };
-
-    fetchUsers();
-  }, []);
   const onDelete = async (e) => {
     e.preventDefault();
     setIsDeleting(true);

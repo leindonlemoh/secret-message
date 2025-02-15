@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
+import UserList from "../../components/UserList";
+import FriendRequests from "../../components/FriendRequests";
 
 const Friends = () => {
-
   return (
-    <div></div>
-  )
-  
-}
+    <section>
+      <UserList />
+      <FriendRequests />
+    </section>
+  );
+};
 
-export default Friends
+export default Friends;

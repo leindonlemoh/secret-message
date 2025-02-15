@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "../utils/supabase/server";
 const supabase = await createClient();
+
 export async function addMessage(formData) {
   const content = formData.get("content");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  console.log(user.user_metadata.full_name);
+  console.log(user?.user_metadata?.full_name);
   if (!user) {
     console.error("User is not authenticated in addMessage server action");
     return { message: "User not authenticated" };

@@ -7,6 +7,7 @@ import { createClient } from "../../../utils/supabase/client";
 const Profile = () => {
   const [messagesContent, setMessagesContent] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
   const fetchPost = async () => {
     const supabase = createClient();
     const {
@@ -17,7 +18,7 @@ const Profile = () => {
     const { data: messages, error } = await supabase
       .from("message")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", user?.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -27,6 +28,7 @@ const Profile = () => {
 
     setMessagesContent(messages);
   };
+
   useEffect(() => {
     fetchPost();
   }, []);

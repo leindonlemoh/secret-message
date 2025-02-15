@@ -8,21 +8,18 @@ import Swal from "sweetalert2";
 const NavBar = ({ setActive, active }) => {
   const [user, setUser] = useState(null);
   const router = useRouter();
-
+  const fetchUser = async () => {
+    const userData = await getUser();
+    if (userData) {
+      setUser(userData);
+    } else {
+      return;
+    }
+  };
   useEffect(() => {
-    const fetchUser = async () => {
-      const userData = await getUser();
-      if (userData) {
-        setUser(userData);
-        // console.log('userData',userData)
-      } else {
-        console.log("No user logged in");
-        setUser(null);
-      }
-    };
-
     fetchUser();
   }, []);
+
   const onDeleteAccount = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -61,14 +58,11 @@ const NavBar = ({ setActive, active }) => {
     <div className="bg-blue-900 w-full p-4">
       <div className="flex justify-between items-center">
         {/* Left Logo or Title */}
-        <div className="text-white text-xl font-bold">Secret Message App</div>
+        <h2 className="text-white text-xl font-bold">Secret Message App </h2>
 
         {user && (
           <div>
             <div className="space-x-4">
-              <button type="button" onClick={onDeleteAccount}>
-                Delete Account
-              </button>
               <button
                 className={`text-white hover:bg-blue-700 hover:text-blue-100 px-4 py-2  ${
                   active == "profile" ? "border-2 border-white rounded-lg" : ""
@@ -91,19 +85,35 @@ const NavBar = ({ setActive, active }) => {
               >
                 Feed
               </button>
+              <button
+                className={`text-white hover:bg-blue-700 hover:text-blue-100 px-4 py-2 ${
+                  active == "friends" ? "border-2 border-white rounded-lg" : ""
+                }`}
+                onClick={() => {
+                  setActive("friends");
+                  router.push(`?tab=friends`);
+                }}
+              >
+                Friendships
+              </button>
             </div>
           </div>
         )}
 
         <div>
           {user && (
-            <form>
+            <form className="flex gap-x-1">
               <button
                 className="text-white hover:bg-blue-700 hover:text-blue-100 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
                 formAction={logout}
               >
                 Logout
               </button>
+              {user && (
+                <button type="button" onClick={onDeleteAccount}>
+                  Delete Account
+                </button>
+              )}
             </form>
           )}
         </div>

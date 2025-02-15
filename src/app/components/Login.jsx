@@ -37,10 +37,9 @@ const Login = () => {
           Email:
         </label>
         <input
-          id="email"
           name="email"
           type="email"
-          onChange={(e) => inputChange({ e, setState: setUserDetails })}
+          onChange={(e) => inputChange(e, setUserDetails)}
           required
           className="p-2 rounded-md text-black"
         />
@@ -48,10 +47,9 @@ const Login = () => {
           Password:
         </label>
         <input
-          id="password"
           name="password"
           type="password"
-          onChange={(e) => inputChange({ e, setState: setUserDetails })}
+          onChange={(e) => inputChange(e, setUserDetails)}
           required
           className="p-2 rounded-md text-black"
         />
