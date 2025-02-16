@@ -98,8 +98,12 @@ const UserList = () => {
 
   const sendRequest = async (e, id) => {
     e.preventDefault();
+    if (!userAuth?.id) {
+      console.error("User is not authenticated.");
+      return;
+    }
     const response = await createRequest(userAuth?.id, userAuth?.name, id);
-    if (response.status == 200) {
+    if (response.status === 200) {
       Swal.fire({
         position: "center",
         icon: "success",
@@ -110,6 +114,8 @@ const UserList = () => {
         mutate("fetch_users");
         mutate("fetch_request");
       });
+    } else {
+      console.error("Error sending request:", response.message);
     }
   };
 

@@ -20,7 +20,7 @@ const Login = () => {
         showConfirmButton: false,
         timer: 1500,
       }).then(() => {
-        router.push("/home?tab=Profile");
+        router.push("/home?tab=profile");
       });
     } else {
       Swal.fire({
