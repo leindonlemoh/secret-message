@@ -3,11 +3,30 @@ import { createClient } from "../../../utils/supabase/client";
 import Post from "../../components/Post";
 import useSWR from "swr";
 import Loading from "../../components/Loading";
+import { deleteMessage } from "../../../lib/server-actions";
 const Feed = ({ user }) => {
   console.log("user", user);
   // const [messagesContent, setMessagesContent] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const onDelete = async (e, id) => {
+    e.preventDefault();
 
+    setRefresh(true);
+
+    const response = await deleteMessage(id);
+
+    if (response?.status === 200) {
+      Swal.fire({
+        title: "Message Deleted",
+        text: "Your Message was Deleted",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        setRefresh(false);
+        mutate("fetch_message");
+      });
+    }
+  };
   const fetchPost = async () => {
     const supabase = createClient();
     const {
@@ -31,7 +50,7 @@ const Feed = ({ user }) => {
     data: messagesContent = [],
     error,
     isLoading: postLoading,
-  } = useSWR("fetch_messages", fetchPost, {
+  } = useSWR("fetch_message", fetchPost, {
     refreshInterval: 10000,
   });
 
@@ -44,7 +63,14 @@ const Feed = ({ user }) => {
           {messagesContent.map((items, index) => {
             return (
               <div key={index}>
-                <Post content={items} setIsLoading={setIsLoading} user={user} />
+                <div key={index}>
+                  <Post
+                    content={items}
+                    isLoading={isLoading}
+                    user={user}
+                    onDelete={onDelete}
+                  />
+                </div>
               </div>
             );
           })}

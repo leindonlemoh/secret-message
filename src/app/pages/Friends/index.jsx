@@ -9,19 +9,10 @@ import useSWR, { mutate } from "swr";
 import Swal from "sweetalert2";
 import Loading from "../../components/Loading";
 const Friends = ({ user }) => {
-  // const [userAuth, setUserAuth] = useState({
-  //   id: "",
-  //   name: "",
-  // });
-
   const fetchOwn = async () => {
     const response = await fetchData("profile", { user_id: user?.user_id });
     if (response[0]?.user_id && response[0]?.name) {
       return { id: response[0]?.user_id, name: response[0]?.name };
-      // setUserAuth({
-      //   id: response[0]?.user_id,
-      //   name: response[0]?.name,
-      // });
     } else {
       console.error("Profile data not found or missing fields.");
     }

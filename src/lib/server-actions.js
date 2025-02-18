@@ -30,9 +30,7 @@ export async function addMessage(content, name) {
   return { status: 200, message: "Success" };
 }
 
-export async function deleteMessage(formData) {
-  const messageId = formData.get("id");
-
+export async function deleteMessage(id) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -44,7 +42,7 @@ export async function deleteMessage(formData) {
   const { error } = await supabase
     .from("message")
     .delete()
-    .match({ id: messageId, user_id: user.id });
+    .match({ id: id, user_id: user.id });
 
   if (error) {
     console.error("Error deleting message", error);

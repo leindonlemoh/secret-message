@@ -24,7 +24,7 @@ const CreatePost = ({ name }) => {
         confirmButtonText: "OK",
       }).then(() => {
         setContent("");
-        mutate("fetch_messages");
+        mutate("fetch_message");
       });
     } else {
       Swal.fire({
