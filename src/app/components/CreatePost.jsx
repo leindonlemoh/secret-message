@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { addMessage } from "../../lib/server-actions";
 import Swal from "sweetalert2";
 
-const CreatePost = ({ setIsLoading, fetchPost }) => {
+const CreatePost = ({ setIsLoading, fetchPost, name }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [content, setContent] = useState("");
 
@@ -11,8 +11,7 @@ const CreatePost = ({ setIsLoading, fetchPost }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.target);
-    const response = await addMessage(formData);
+    const response = await addMessage(content, name);
 
     setIsSubmitting(false);
 

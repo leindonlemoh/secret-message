@@ -27,8 +27,5 @@ export async function addProfile(formData) {
   } else if (formData?.firstName == "" && formData?.lastName) {
     return;
   }
-
-  //   revalidatePath("/home?tab=profile");
-
   return { status: 200, message: "Success" };
 }

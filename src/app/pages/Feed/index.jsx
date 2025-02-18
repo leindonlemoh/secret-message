@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "../../../utils/supabase/client";
-const Feed = () => {
+import Post from "../../components/Post";
+const Feed = ({ user }) => {
+  console.log("user", user);
   const [messagesContent, setMessagesContent] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchPost = async () => {
     const supabase = createClient();
@@ -25,9 +28,25 @@ const Feed = () => {
   useEffect(() => {
     fetchPost();
   }, []);
+  useEffect(() => {
+    console.log(messagesContent);
+  }, [messagesContent]);
   return (
     <div className="flex justify-center items-center">
-      <p className="text-3xl">Ongoing ...</p>
+      <div className="w-[60%]">
+        {messagesContent.map((items, index) => {
+          return (
+            <div key={index}>
+              <Post
+                content={items}
+                setIsLoading={setIsLoading}
+                fetchPost={fetchPost}
+                user={user}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

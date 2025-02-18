@@ -4,13 +4,11 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "../utils/supabase/server";
 const supabase = await createClient();
 
-export async function addMessage(formData) {
-  const content = formData.get("content");
-
+export async function addMessage(content, name) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  console.log(user?.user_metadata?.full_name);
+
   if (!user) {
     console.error("User is not authenticated in addMessage server action");
     return { message: "User not authenticated" };
@@ -20,7 +18,7 @@ export async function addMessage(formData) {
     {
       content,
       user_id: user.id,
-      posted_by: user.user_metadata.full_name,
+      posted_by: name,
     },
   ]);
 
@@ -28,8 +26,6 @@ export async function addMessage(formData) {
     console.error(error);
     return { status: 500, message: "Error inserting message" };
   }
-
-  revalidatePath("/home?tab=profile");
 
   return { status: 200, message: "Success" };
 }
@@ -54,7 +50,6 @@ export async function deleteMessage(formData) {
     console.error("Error deleting message", error);
     return { status: 500, message: "Error inserting message" };
   }
-  // revalidatePath('/home')
 
   return { status: 200, message: "Success" };
 }
@@ -85,7 +80,6 @@ export async function updateMessage(formData) {
     console.error("Error updating message", error);
     return { status: 500, message: "Error updating message" };
   }
-  // revalidatePath('/home')
 
   return { status: 200, message: "Success" };
 }

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "../../utils/supabase/client";
-import { createRequest } from "../../lib/sendRequest";
-import { deleteData } from "../../utils/deleteData";
-import { fetchData, checkFriendRequest } from "../../utils/fetchData";
-import { getUser } from "../../utils/supabase/getUser";
+
+import { checkFriendRequest } from "../../utils/fetchData";
+
 import Swal from "sweetalert2";
 import useSWR, { mutate } from "swr";
 
-const UserList = () => {
-  const [userAuth, setUserAuth] = useState({
-    id: "",
-    name: "",
-  });
-
+const UserList = ({
+  onAccept,
+  onCancelRequest,
+  sendRequest,
+  userAuth,
+  onReject,
+}) => {
   // Fetch Users
   const fetchUsers = async () => {
     const supabase = createClient();
@@ -29,37 +29,16 @@ const UserList = () => {
     return users;
   };
 
-  // Fetch user authentication data
-  const fetchOwn = async () => {
-    const userData = await getUser();
-    if (!userData?.id) {
-      console.error("User not found.");
-      return;
-    }
-    const response = await fetchData("profile", { user_id: userData?.id });
-    if (response[0]?.user_id && response[0]?.name) {
-      setUserAuth({
-        id: response[0]?.user_id,
-        name: response[0]?.name,
-      });
-    } else {
-      console.error("Profile data not found or missing fields.");
-    }
-  };
-
-  // Fetch friend requests
+  // Fetch My Requests
   const fetchMyRequests = async () => {
     if (!userAuth?.id) return [];
     const response = await checkFriendRequest(userAuth?.id);
+
     return response || [];
   };
 
-  useEffect(() => {
-    fetchOwn();
-  }, []);
-
   const {
-    data: userList = [], // Default empty array if no data
+    data: userList = [],
     error,
     isLoading,
   } = useSWR("fetch_users", fetchUsers, {
@@ -67,109 +46,55 @@ const UserList = () => {
   });
 
   const {
-    data: myRequests = [], // Default empty array if no data
+    data: myRequests = [],
     error: reqError,
     isLoading: reqLoading,
   } = useSWR("fetch_request", fetchMyRequests, {
     refreshInterval: 10000,
   });
 
-  const onCancelRequest = async (e, id) => {
-    Swal.fire({
-      title: "Do you want to save the changes?",
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      denyButtonText: `Don't save`,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const response = await deleteData("friend_requests", id);
-        if (response.status == 200) {
-          Swal.fire("Cancelled!", "", "success").then(() => {
-            mutate("fetch_users");
-            mutate("fetch_request");
-          });
-        }
-      } else if (result.isDenied) {
-        Swal.fire("Changes are not saved", "", "info");
-      }
-    });
-  };
-
-  const sendRequest = async (e, id) => {
-    e.preventDefault();
-    if (!userAuth?.id) {
-      console.error("User is not authenticated.");
-      return;
-    }
-    const response = await createRequest(userAuth?.id, userAuth?.name, id);
-    if (response.status === 200) {
-      Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Request has been sent",
-        showConfirmButton: false,
-        timer: 1500,
-      }).then(() => {
-        mutate("fetch_users");
-        mutate("fetch_request");
-      });
-    } else {
-      console.error("Error sending request:", response.message);
-    }
-  };
-
   if (isLoading || reqLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="w-full h-[25vh] border-2 border-[red] flex flex-row flex-wrap gap-4 ps-1 pt-5">
-      {userList?.map((userItems, index) => {
-        if (userItems?.user_id !== userAuth?.id) {
-          const matchedRequest = myRequests.find(
-            (req) =>
-              req?.receiver_id === userItems?.user_id &&
-              req?.status === "pending"
-          );
-          const isReceiver = userAuth?.id === matchedRequest?.receiver_id;
-          console.log(matchedRequest);
-          console.log(isReceiver, "isReceiver");
-          return (
-            <div
-              className="h-[80%] bg-white rounded-lg border-2 border-gray-300 shadow-md p-4"
-              key={index}
-            >
-              <p className="text-xl font-semibold text-gray-800">
-                {userItems?.name}
-              </p>
-              <span className="text-sm text-gray-600">
-                Joined in:{" "}
-                {new Date(String(userItems?.created_at)).toLocaleDateString(
-                  "fr-CA",
-                  {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  }
-                )}
-              </span>
-              {matchedRequest ? (
-                <div className=" flex flex-row">
-                  <button
-                    className="w-[50%] mt-4  py-2 bg-gray-500 text-white font-semibold rounded-md cursor-not-allowed"
-                    disabled
-                  >
-                    Pending
-                  </button>
-                  <button
-                    className="w-[50%] mt-4  py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600"
-                    onClick={(e) => onCancelRequest(e, matchedRequest.id)}
-                  >
-                    Cancel Request
-                  </button>
-                </div>
-              ) : (
+    <div className="w-full h-[82vh]  flex flex-row flex-wrap gap-4 ps-5 pt-5">
+      {userList?.map((userItems) => {
+        // Skip rendering if the user is the same as userAuth
+        if (userItems?.user_id === userAuth?.id) return null;
+
+        // Check if the user is already in a pending or existing request with current user
+        const isRequestSentOrReceived = myRequests?.some(
+          (requestItems) =>
+            (requestItems?.sender_id === userAuth?.id &&
+              requestItems?.receiver_id === userItems?.user_id) ||
+            (requestItems?.receiver_id === userAuth?.id &&
+              requestItems?.sender_id === userItems?.user_id)
+        );
+
+        return (
+          <div
+            className="h-[25vh] w-[25%] bg-white rounded-lg border-2 border-gray-300 shadow-md p-4"
+            key={userItems?.user_id}
+          >
+            <p className="text-xl font-semibold text-gray-800">
+              {userItems?.name}
+            </p>
+            <span className="text-sm text-gray-600">
+              Joined in:{" "}
+              {new Date(String(userItems?.created_at)).toLocaleDateString(
+                "fr-CA",
+                {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                }
+              )}
+            </span>
+
+            <div className="flex flex-row  ">
+              {/* Add button */}
+              {!isRequestSentOrReceived && (
                 <button
                   className="mt-4 w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   onClick={(e) => sendRequest(e, userItems?.user_id)}
@@ -177,9 +102,113 @@ const UserList = () => {
                   Add Friend
                 </button>
               )}
+
+              {myRequests?.map((requestItems, i) => {
+                // Pending Cancel
+                if (
+                  userAuth?.id == requestItems?.sender_id &&
+                  userItems?.user_id == requestItems?.receiver_id &&
+                  requestItems?.status == "pending"
+                ) {
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-center  w-full"
+                    >
+                      <div className="flex flex-col gap-3 p-3 w-full">
+                        <button
+                          className="w-[100%]  py-2 bg-gray-500 text-white font-semibold rounded-md cursor-not-allowed"
+                          disabled
+                        >
+                          Pending
+                        </button>
+                        <button
+                          className="w-[100%]  p-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600"
+                          onClick={(e) => onCancelRequest(e, requestItems.id)}
+                        >
+                          Cancel Request
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+                // Accept Reject Button
+                if (
+                  userAuth?.id === requestItems?.receiver_id &&
+                  userItems?.user_id === requestItems?.sender_id &&
+                  requestItems?.status == "pending"
+                ) {
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-center  w-full"
+                    >
+                      <div className="flex flex-col gap-3 p-3 w-full">
+                        <button
+                          className="w-[100%]  py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
+                          onClick={() =>
+                            onAccept(
+                              requestItems.id,
+                              userItems?.user_id,
+                              userItems?.name
+                            )
+                          }
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="w-[100%]  py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600"
+                          onClick={(e) => onReject(e, requestItems?.id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+                // Accepted
+                if (
+                  (userItems?.user_id == requestItems?.sender_id ||
+                    userItems?.user_id == requestItems?.receiver_id) &&
+                  requestItems?.status === "accepted"
+                ) {
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-center  w-full"
+                    >
+                      <button
+                        className="w-[100%] mt-4 py-2 bg-gray-500 text-white font-semibold rounded-md cursor-not-allowed"
+                        disabled
+                      >
+                        Accepted
+                      </button>
+                    </div>
+                  );
+                }
+                // Rejected
+                if (
+                  (userItems?.user_id == requestItems?.sender_id ||
+                    userItems?.user_id == requestItems?.receiver_id) &&
+                  requestItems?.status === "reject"
+                ) {
+                  return (
+                    <div key={i}>
+                      <button
+                        className="w-[100%] mt-4 py-2 bg-red-500 text-white font-semibold rounded-md cursor-not-allowed"
+                        disabled
+                      >
+                        Rejected
+                      </button>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
             </div>
-          );
-        }
+          </div>
+        );
       })}
     </div>
   );

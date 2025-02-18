@@ -4,7 +4,7 @@ import Post from "../../components/Post";
 
 import { createClient } from "../../../utils/supabase/client";
 
-const Profile = () => {
+const Profile = ({ user }) => {
   const [messagesContent, setMessagesContent] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,10 +32,15 @@ const Profile = () => {
   useEffect(() => {
     fetchPost();
   }, []);
+
   return (
     <div>
       <div>
-        <CreatePost setIsLoading={setIsLoading} fetchPost={fetchPost} />
+        <CreatePost
+          setIsLoading={setIsLoading}
+          fetchPost={fetchPost}
+          name={user?.name}
+        />
       </div>
       <div>
         {messagesContent.map((items, index) => {
@@ -45,6 +50,7 @@ const Profile = () => {
                 content={items}
                 setIsLoading={setIsLoading}
                 fetchPost={fetchPost}
+                user={user}
               />
             </div>
           );

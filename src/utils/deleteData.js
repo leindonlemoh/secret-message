@@ -2,6 +2,7 @@
 import { createClient } from "./supabase/server";
 
 export async function deleteData(from, id) {
+  console.log(id, "delete data");
   const supabase = await createClient();
 
   const {

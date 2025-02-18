@@ -13,6 +13,7 @@ import { fetchData } from "../../utils/fetchData";
 const Page = () => {
   const searchParams = useSearchParams();
   const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
   const [userName, setUserName] = useState("");
   const [isActivePage, setIsActivePage] = useState("profile");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,7 @@ const Page = () => {
           .eq("user_id", data.user.id)
           .single();
         setUserName(userProfile?.name);
+        setUserInfo(userProfile);
         if (profileError) {
           console.error("Error fetching user profile:", profileError);
           return;
@@ -59,6 +61,9 @@ const Page = () => {
 
     fetchUser();
   }, [router]);
+  useEffect(() => {
+    console.log(userInfo);
+  }, [userInfo]);
   if (user === null) {
     return <div> You are not Logged In</div>;
   }
@@ -68,8 +73,10 @@ const Page = () => {
       <NavBar setActive={setIsActivePage} active={isActivePage} />
       <p>Welcome, {userName}</p>
       {!hasProfile && <CompleteAccount />}
-      {isActivePage == "profile" && hasProfile && <Profile />}
-      {isActivePage == "feed" && hasProfile && <Feed />}
+      {isActivePage == "profile" && hasProfile && (
+        <Profile name={userInfo?.name} user={userInfo} />
+      )}
+      {isActivePage == "feed" && hasProfile && <Feed user={userInfo} />}
       {isActivePage == "friends" && hasProfile && <Friends />}
     </div>
   );

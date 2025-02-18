@@ -4,37 +4,14 @@ import { createClient } from "../../utils/supabase/client";
 import { deleteMessage, updateMessage } from "../../lib/server-actions";
 import Swal from "sweetalert2";
 
-const Post = ({ content, setIsLoading, fetchPost }) => {
-  // console.log(content)
+const Post = ({ content, setIsLoading, fetchPost, user }) => {
+  // console.log("content", content);
+  console.log("user", user);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [postContent, setPostContent] = useState(content.content);
-
-  useEffect(() => {
-    const supabase = createClient();
-
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      // console.log(data.user)
-
-      if (error) {
-        console.error("Error fetching user:", error);
-        return;
-      }
-
-      if (data && data.user) {
-        // console.log(data.user.id);
-        setUser(data.user);
-      } else {
-        console.log("No user logged in");
-        setUser(null);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   const onDelete = async (e) => {
     e.preventDefault();
@@ -96,30 +73,32 @@ const Post = ({ content, setIsLoading, fetchPost }) => {
 
   return (
     <div className="bg-black text-white p-6 rounded-lg border-2 border-blue-800 max-w-xl mx-auto my-4 shadow-lg relative">
-      <div className="absolute top-2 right-2 flex space-x-2">
-        <div>
-          {isEditing ? (
-            <></>
-          ) : (
-            <button
-              className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </button>
-          )}
-        </div>
+      {user?.user_id == content?.user_id && (
+        <div className="absolute top-2 right-2 flex space-x-2">
+          <div>
+            {isEditing ? (
+              <></>
+            ) : (
+              <button
+                className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </button>
+            )}
+          </div>
 
-        <form onSubmit={onDelete}>
-          <input type="hidden" name="id" value={content?.id} />
-          <button className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
-            Delete
-          </button>
-        </form>
-      </div>
+          <form onSubmit={onDelete}>
+            <input type="hidden" name="id" value={content?.id} />
+            <button className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+              Delete
+            </button>
+          </form>
+        </div>
+      )}
       <div className=" flex flex-col">
         <div>
-          <h5>{content?.posted_by}</h5>
+          <h5>Posted by: {content?.posted_by}</h5>
         </div>
         <div className="border-2 border-blue-600 rounded-lg p-5 mt-2">
           {isEditing ? (

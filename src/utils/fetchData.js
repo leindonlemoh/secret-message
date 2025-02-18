@@ -2,24 +2,26 @@ import { createClient } from "./supabase/client";
 
 // General-purpose fetch function that can handle dynamic conditions
 export const fetchData = async (from, conditions) => {
+  console.log(conditions);
   const supabase = createClient();
+  if (from != undefined && conditions != undefined) {
+    let query = supabase
+      .from(from)
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  let query = supabase
-    .from(from)
-    .select("*")
-    .order("created_at", { ascending: false });
+    for (const [key, value] of Object.entries(conditions)) {
+      query = query.eq(key, value);
+    }
 
-  for (const [key, value] of Object.entries(conditions)) {
-    query = query.eq(key, value);
+    const { data, error } = await query;
+
+    if (error) {
+      console.error(error.message);
+    }
+
+    return data;
   }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
 };
 
 export const checkFriendRequest = async (id) => {
@@ -27,10 +29,11 @@ export const checkFriendRequest = async (id) => {
   const { data, error } = await supabase
     .from("friend_requests")
     .select("*")
-    .eq("sender_id", id);
+    .or(`sender_id.eq.${id},receiver_id.eq.${id}`); // Use the `.or` method to check for both sender_id and receiver_id
+
   if (error) {
-    console.error(error);
+    console.error("Error fetching friend requests:", error);
   }
-  console.log(data);
+
   return data;
 };
