@@ -3,14 +3,11 @@ import { useState, useEffect } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { deleteMessage, updateMessage } from "../../lib/server-actions";
 import Swal from "sweetalert2";
-
-const Post = ({ content, setIsLoading, fetchPost, user }) => {
-  // console.log("content", content);
-  console.log("user", user);
+import { mutate } from "swr";
+const Post = ({ content, setIsLoading, user }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  // const [user, setUser] = useState(null);
   const [postContent, setPostContent] = useState(content.content);
 
   const onDelete = async (e) => {
@@ -32,7 +29,7 @@ const Post = ({ content, setIsLoading, fetchPost, user }) => {
           setIsLoading(true);
         })
         .then(() => {
-          fetchPost();
+          mutate("fetch_messages");
           setIsLoading(false);
         });
     }
@@ -49,15 +46,10 @@ const Post = ({ content, setIsLoading, fetchPost, user }) => {
         text: "Your message was successfully Updated.",
         icon: "success",
         confirmButtonText: "OK",
-      })
-        .then(() => {
-          setIsEditing(false);
-          setIsLoading(true);
-        })
-        .then(() => {
-          fetchPost();
-          setIsLoading(false);
-        });
+      }).then(() => {
+        mutate("fetch_messages");
+        setIsLoading(false);
+      });
     } else {
       Swal.fire({
         title: "Error!",
@@ -67,13 +59,20 @@ const Post = ({ content, setIsLoading, fetchPost, user }) => {
       });
     }
   };
+
   const handleContentChange = (e) => {
     setPostContent(e.target.value);
   };
 
+  const canRenderPost =
+    user?.user_id === content?.user_id ||
+    user?.friends?.some((friend) => friend === content?.user_id);
+
+  if (!canRenderPost) return null;
+
   return (
     <div className="bg-black text-white p-6 rounded-lg border-2 border-blue-800 max-w-xl mx-auto my-4 shadow-lg relative">
-      {user?.user_id == content?.user_id && (
+      {user?.user_id === content?.user_id && (
         <div className="absolute top-2 right-2 flex space-x-2">
           <div>
             {isEditing ? (
@@ -96,7 +95,8 @@ const Post = ({ content, setIsLoading, fetchPost, user }) => {
           </form>
         </div>
       )}
-      <div className=" flex flex-col">
+
+      <div className="flex flex-col">
         <div>
           <h5>Posted by: {content?.posted_by}</h5>
         </div>

@@ -7,34 +7,35 @@ import { createRequest, updateRequest } from "../../../lib/requestCU";
 import { deleteData } from "../../../utils/deleteData";
 import useSWR, { mutate } from "swr";
 import Swal from "sweetalert2";
-const Friends = () => {
-  const [userAuth, setUserAuth] = useState({
-    id: "",
-    name: "",
-  });
+import Loading from "../../components/Loading";
+const Friends = ({ user }) => {
+  // const [userAuth, setUserAuth] = useState({
+  //   id: "",
+  //   name: "",
+  // });
 
   const fetchOwn = async () => {
-    const userData = await getUser();
-    if (!userData?.id) {
-      console.error("User not found.");
-      return;
-    }
-    const response = await fetchData("profile", { user_id: userData?.id });
+    const response = await fetchData("profile", { user_id: user?.user_id });
     if (response[0]?.user_id && response[0]?.name) {
-      setUserAuth({
-        id: response[0]?.user_id,
-        name: response[0]?.name,
-      });
+      return { id: response[0]?.user_id, name: response[0]?.name };
+      // setUserAuth({
+      //   id: response[0]?.user_id,
+      //   name: response[0]?.name,
+      // });
     } else {
       console.error("Profile data not found or missing fields.");
     }
   };
 
-  useEffect(() => {
-    fetchOwn();
-  }, []);
+  const {
+    data: userAuth = {},
+    error,
+    isLoading,
+  } = useSWR("fetch_userAuth", fetchOwn, {
+    refreshInterval: 10000,
+  });
 
-  const onAccept = async (id, user2_Id, user2_name) => {
+  const onAccept = async (id, user2_Id) => {
     const responseUpdate = await updateRequest(id, "accepted");
 
     if (responseUpdate.status == 200) {
@@ -48,6 +49,7 @@ const Friends = () => {
         }).then(() => {
           mutate("fetch_users");
           mutate("fetch_request");
+          mutate("fetch_userAuth");
         });
       }
     } else {
@@ -73,6 +75,7 @@ const Friends = () => {
       }).then(() => {
         mutate("fetch_users");
         mutate("fetch_request");
+        mutate("fetch_userAuth");
       });
     } else {
       Swal.fire({
@@ -98,6 +101,7 @@ const Friends = () => {
           Swal.fire("Cancelled!", "", "success").then(() => {
             mutate("fetch_users");
             mutate("fetch_request");
+            mutate("fetch_userAuth");
           });
         }
       } else if (result.isDenied) {
@@ -122,6 +126,7 @@ const Friends = () => {
       }).then(() => {
         mutate("fetch_users");
         mutate("fetch_request");
+        mutate("fetch_userAuth");
       });
     } else {
       console.error("Error sending request:", response.message);
@@ -130,13 +135,17 @@ const Friends = () => {
 
   return (
     <section>
-      <UserList
-        onAccept={onAccept}
-        onCancelRequest={onCancelRequest}
-        sendRequest={sendRequest}
-        userAuth={userAuth}
-        onReject={onReject}
-      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <UserList
+          onAccept={onAccept}
+          onCancelRequest={onCancelRequest}
+          sendRequest={sendRequest}
+          userAuth={userAuth}
+          onReject={onReject}
+        />
+      )}
     </section>
   );
 };

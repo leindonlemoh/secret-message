@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { addMessage } from "../../lib/server-actions";
 import Swal from "sweetalert2";
+import { mutate } from "swr";
 
-const CreatePost = ({ setIsLoading, fetchPost, name }) => {
+const CreatePost = ({ name }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [content, setContent] = useState("");
 
@@ -21,15 +22,10 @@ const CreatePost = ({ setIsLoading, fetchPost, name }) => {
         text: "Your message was successfully added.",
         icon: "success",
         confirmButtonText: "OK",
-      })
-        .then(() => {
-          setIsLoading(true);
-          fetchPost();
-        })
-        .then(() => {
-          setContent("");
-          setIsLoading(false);
-        });
+      }).then(() => {
+        setContent("");
+        mutate("fetch_messages");
+      });
     } else {
       Swal.fire({
         title: "Error!",

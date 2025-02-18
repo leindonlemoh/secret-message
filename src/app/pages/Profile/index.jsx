@@ -36,22 +36,13 @@ const Profile = ({ user }) => {
   return (
     <div>
       <div>
-        <CreatePost
-          setIsLoading={setIsLoading}
-          fetchPost={fetchPost}
-          name={user?.name}
-        />
+        <CreatePost name={user?.name} />
       </div>
       <div>
         {messagesContent.map((items, index) => {
           return (
             <div key={index}>
-              <Post
-                content={items}
-                setIsLoading={setIsLoading}
-                fetchPost={fetchPost}
-                user={user}
-              />
+              <Post content={items} setIsLoading={setIsLoading} user={user} />
             </div>
           );
         })}

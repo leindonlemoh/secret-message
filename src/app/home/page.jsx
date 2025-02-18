@@ -77,7 +77,7 @@ const Page = () => {
         <Profile name={userInfo?.name} user={userInfo} />
       )}
       {isActivePage == "feed" && hasProfile && <Feed user={userInfo} />}
-      {isActivePage == "friends" && hasProfile && <Friends />}
+      {isActivePage == "friends" && hasProfile && <Friends user={userInfo} />}
     </div>
   );
 };

@@ -60,7 +60,7 @@ const UserList = ({
   return (
     <div className="w-full h-[82vh]  flex flex-row flex-wrap gap-4 ps-5 pt-5">
       {userList?.map((userItems) => {
-        // Skip rendering if the user is the same as userAuth
+        // remove user auth pprfile in the list
         if (userItems?.user_id === userAuth?.id) return null;
 
         // Check if the user is already in a pending or existing request with current user
@@ -147,11 +147,7 @@ const UserList = ({
                         <button
                           className="w-[100%]  py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
                           onClick={() =>
-                            onAccept(
-                              requestItems.id,
-                              userItems?.user_id,
-                              userItems?.name
-                            )
+                            onAccept(requestItems.id, userItems?.user_id)
                           }
                         >
                           Accept
@@ -193,7 +189,10 @@ const UserList = ({
                   requestItems?.status === "reject"
                 ) {
                   return (
-                    <div key={i}>
+                    <div
+                      key={i}
+                      className="flex items-center justify-center  w-full"
+                    >
                       <button
                         className="w-[100%] mt-4 py-2 bg-red-500 text-white font-semibold rounded-md cursor-not-allowed"
                         disabled
