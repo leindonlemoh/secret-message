@@ -41,6 +41,8 @@ const Friends = ({ user }) => {
           mutate("fetch_users");
           mutate("fetch_request");
           mutate("fetch_userAuth");
+          mutate("fetch_message");
+          window.location.reload();
         });
       }
     } else {

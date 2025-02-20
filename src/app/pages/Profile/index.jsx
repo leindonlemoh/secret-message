@@ -6,8 +6,9 @@ import { createClient } from "../../../utils/supabase/client";
 import { deleteMessage } from "../../../lib/server-actions";
 import Swal from "sweetalert2";
 import Loading from "../../components/Loading";
-const Profile = ({ user }) => {
+const Profile = ({ name, user, userAuth }) => {
   const [refresh, setRefresh] = useState(false);
+
   const fetchPost = async () => {
     const supabase = createClient();
     const {
@@ -18,7 +19,7 @@ const Profile = ({ user }) => {
     const { data: messages, error } = await supabase
       .from("message")
       .select("*")
-      .eq("user_id", user?.id)
+      .eq("user_id", userAuth?.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -35,10 +36,11 @@ const Profile = ({ user }) => {
     isLoading,
   } = useSWR("fetch_message", fetchPost, {
     refreshInterval: 10000,
+    revalidateOnFocus: true, // Ensure data is refreshed when the tab comes into focus
   });
+
   const onDelete = async (e, id) => {
     e.preventDefault();
-
     setRefresh(true);
 
     const response = await deleteMessage(id);
@@ -51,7 +53,7 @@ const Profile = ({ user }) => {
         confirmButtonText: "OK",
       }).then(() => {
         setRefresh(false);
-        mutate("fetch_message");
+        mutate("fetch_message"); // Revalidate data after deletion
       });
     }
   };
@@ -59,27 +61,24 @@ const Profile = ({ user }) => {
   useEffect(() => {
     console.log(messagesContent);
   }, [messagesContent]);
+
   return (
     <div>
-      <div>
-        <CreatePost name={user?.name} />
-      </div>
+      <CreatePost name={user?.name} userAuth={userAuth} />
       {refresh ? (
         <Loading />
       ) : (
         <div>
-          {messagesContent.map((items, index) => {
-            return (
-              <div key={index}>
-                <Post
-                  content={items}
-                  isLoading={isLoading}
-                  user={user}
-                  onDelete={onDelete}
-                />
-              </div>
-            );
-          })}
+          {messagesContent.map((items, index) => (
+            <div key={index}>
+              <Post
+                content={items}
+                isLoading={isLoading}
+                user={user}
+                onDelete={onDelete}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

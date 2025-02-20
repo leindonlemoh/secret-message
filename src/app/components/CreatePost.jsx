@@ -4,15 +4,16 @@ import { addMessage } from "../../lib/server-actions";
 import Swal from "sweetalert2";
 import { mutate } from "swr";
 
-const CreatePost = ({ name }) => {
+const CreatePost = ({ name, userAuth }) => {
+  console.log("user", userAuth?.id);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [content, setContent] = useState("");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const response = await addMessage(content, name);
+    console.log(content, name, userAuth?.id);
+    const response = await addMessage(content, name, userAuth?.id);
 
     setIsSubmitting(false);
 

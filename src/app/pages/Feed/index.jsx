@@ -5,13 +5,11 @@ import useSWR from "swr";
 import Loading from "../../components/Loading";
 import { deleteMessage } from "../../../lib/server-actions";
 const Feed = ({ user }) => {
-  console.log("user", user);
-  // const [messagesContent, setMessagesContent] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
   const onDelete = async (e, id) => {
     e.preventDefault();
-
-    setRefresh(true);
+    setIsLoading(true);
 
     const response = await deleteMessage(id);
 
@@ -22,11 +20,12 @@ const Feed = ({ user }) => {
         icon: "success",
         confirmButtonText: "OK",
       }).then(() => {
-        setRefresh(false);
-        mutate("fetch_message");
+        setIsLoading(false);
+        mutate("fetch_message"); // Revalidate after deletion
       });
     }
   };
+
   const fetchPost = async () => {
     const supabase = createClient();
     const {
@@ -46,34 +45,35 @@ const Feed = ({ user }) => {
 
     return messages;
   };
+
   const {
     data: messagesContent = [],
     error,
     isLoading: postLoading,
   } = useSWR("fetch_message", fetchPost, {
     refreshInterval: 10000,
+    revalidateOnFocus: true,
+    onSuccess: () => {
+      mutate("fetch_userAuth");
+    },
   });
 
   return (
-    <div className="flex justify-center items-center">
+    <div>
       {postLoading ? (
         <Loading />
       ) : (
-        <div className="w-[60%]">
-          {messagesContent.map((items, index) => {
-            return (
-              <div key={index}>
-                <div key={index}>
-                  <Post
-                    content={items}
-                    isLoading={isLoading}
-                    user={user}
-                    onDelete={onDelete}
-                  />
-                </div>
-              </div>
-            );
-          })}
+        <div>
+          {messagesContent.map((items, index) => (
+            <div key={index}>
+              <Post
+                content={items}
+                isLoading={isLoading}
+                user={user}
+                onDelete={onDelete}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

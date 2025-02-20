@@ -25,6 +25,7 @@ const Register = () => {
           email: "",
           password: "",
         });
+        window.location.reload();
       });
     } else {
       Swal.fire({

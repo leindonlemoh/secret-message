@@ -56,10 +56,11 @@ const UserList = ({
   if (isLoading || reqLoading) {
     return <div>Loading...</div>;
   }
-
+  console.log(userList);
   return (
     <div className="w-full h-[82vh]  flex flex-row flex-wrap gap-4 ps-5 pt-5">
       {userList?.map((userItems) => {
+        console.log(userItems);
         // remove user auth pprfile in the list
         if (userItems?.user_id === userAuth?.id) return null;
 

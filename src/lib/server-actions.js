@@ -4,20 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "../utils/supabase/server";
 const supabase = await createClient();
 
-export async function addMessage(content, name) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    console.error("User is not authenticated in addMessage server action");
-    return { message: "User not authenticated" };
-  }
-
+export async function addMessage(content, name, id) {
+  console.log(name);
+  console.log(id);
   const { data, error } = await supabase.from("message").insert([
     {
       content,
-      user_id: user.id,
+      user_id: id,
       posted_by: name,
     },
   ]);

@@ -63,9 +63,7 @@ const Page = () => {
   useEffect(() => {
     fetchUser();
   }, []);
-  useEffect(() => {
-    console.log(userInfo);
-  }, [userInfo]);
+
   if (user === null) {
     return <div> You are not Logged In</div>;
   }
@@ -76,7 +74,7 @@ const Page = () => {
       <p>Welcome, {userName}</p>
       {!hasProfile && <CompleteAccount user={user} />}
       {isActivePage == "profile" && hasProfile && (
-        <Profile name={userInfo?.name} user={userInfo} />
+        <Profile name={userInfo?.name} user={userInfo} userAuth={user} />
       )}
       {isActivePage == "feed" && hasProfile && <Feed user={userInfo} />}
       {isActivePage == "friends" && hasProfile && <Friends user={userInfo} />}
