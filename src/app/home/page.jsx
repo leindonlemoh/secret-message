@@ -74,7 +74,7 @@ const Page = () => {
     <div>
       <NavBar setActive={setIsActivePage} active={isActivePage} />
       <p>Welcome, {userName}</p>
-      {!hasProfile && <CompleteAccount />}
+      {!hasProfile && <CompleteAccount user={user} />}
       {isActivePage == "profile" && hasProfile && (
         <Profile name={userInfo?.name} user={userInfo} />
       )}

@@ -3,10 +3,12 @@ import { inputChange } from "../../lib/onChange";
 import { addProfile } from "../../lib/account";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-const CompleteAccount = () => {
+const CompleteAccount = ({ user }) => {
+  console.log(user);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [userInfo, setUserInfo] = useState({
+    id: user?.id,
     firstName: "",
     lastName: "",
   });
@@ -35,7 +37,7 @@ const CompleteAccount = () => {
             window.location.reload();
           });
         } else {
-          console.log(response.message);
+          console.log(JSON.stringify(response.message));
           Swal.fire({
             title: "Somthing went wrong",
             text: response?.message,
@@ -46,7 +48,8 @@ const CompleteAccount = () => {
         }
       });
     } catch (error) {
-      console.log(error);
+      console.error(JSON.stringify(error, null, 2));
+
       Swal.fire({
         title: "Somthing went wrong",
         text: response?.message,
