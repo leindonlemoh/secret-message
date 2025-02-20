@@ -7,6 +7,7 @@ import { deleteMessage } from "../../../lib/server-actions";
 import Swal from "sweetalert2";
 import Loading from "../../components/Loading";
 const Profile = ({ name, user, userAuth }) => {
+  console.log(userAuth);
   const [refresh, setRefresh] = useState(false);
 
   const fetchPost = async () => {
@@ -52,7 +53,7 @@ const Profile = ({ name, user, userAuth }) => {
         confirmButtonText: "OK",
       }).then(() => {
         setRefresh(false);
-        mutate("fetch_message"); // Revalidate data after deletion
+        mutate("fetch_message");
       });
     }
   };
@@ -63,7 +64,8 @@ const Profile = ({ name, user, userAuth }) => {
 
   return (
     <div>
-      <CreatePost name={user?.name} userAuth={userAuth} />
+      <CreatePost name={user?.name} userAuth={userAuth?.id} />
+      <h3 className="text-2xl text-yellow-300">Your recent messages</h3>
       {refresh ? (
         <Loading />
       ) : (

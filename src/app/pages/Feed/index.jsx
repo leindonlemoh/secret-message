@@ -4,9 +4,10 @@ import Post from "../../components/Post";
 import useSWR from "swr";
 import Loading from "../../components/Loading";
 import { deleteMessage } from "../../../lib/server-actions";
+import CreatePost from "../../components/CreatePost";
 const Feed = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
-
+  console.log(user);
   const onDelete = async (e, id) => {
     e.preventDefault();
     setIsLoading(true);
@@ -60,16 +61,24 @@ const Feed = ({ user }) => {
         <Loading />
       ) : (
         <div>
-          {messagesContent.map((items, index) => (
-            <div key={index}>
-              <Post
-                content={items}
-                isLoading={isLoading}
-                user={user}
-                onDelete={onDelete}
-              />
-            </div>
-          ))}
+          <div>
+            <CreatePost name={user?.name} userAuth={user?.user_id} />
+          </div>
+          <div>
+            <h3 className="ps-5 text-2xl text-red-500">
+              Check your friends messages
+            </h3>
+            {messagesContent.map((items, index) => (
+              <div key={index}>
+                <Post
+                  content={items}
+                  isLoading={isLoading}
+                  user={user}
+                  onDelete={onDelete}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
