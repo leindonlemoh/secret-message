@@ -1,15 +1,29 @@
 "use client";
 import { useState, useEffect } from "react";
-import { mutate } from "swr";
+import useSWR, { mutate } from "swr";
 import { updateMessage } from "../../lib/server-actions";
 import Loading from "./Loading";
 import Swal from "sweetalert2";
+import { fetchData } from "../../utils/fetchData";
 const Post = ({ content, isLoading, user, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
-
+  const fetchProfile = async () => {
+    const data = await fetchData("profile", { user_id: user?.user_id });
+    if (data) {
+      return data;
+    }
+  };
+  const {
+    data: profile = [],
+    error,
+    isLoading: profLoading,
+  } = useSWR("fetch_profile", fetchProfile, {
+    refreshInterval: 10000,
+    revalidateOnFocus: true, // Ensure data is refreshed when the tab comes into focus
+  });
   const canRenderPost =
-    user?.user_id === content?.user_id ||
-    user?.friends?.some((friend) => friend === content?.user_id);
+    profile[0]?.user_id === content?.user_id ||
+    profile[0]?.friends?.some((friend) => friend === content?.user_id);
 
   if (!canRenderPost) return null;
 
@@ -50,6 +64,7 @@ const Post = ({ content, isLoading, user, onDelete }) => {
       });
     }
   };
+
   return (
     <>
       {isLoading ? (

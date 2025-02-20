@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
-import CreatePost from "../components/CreatePost";
-import Post from "../components/Post";
+
 import { createClient } from "../../utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation"; // Use useRouter for redirection
 import Feed from "../pages/Feed";

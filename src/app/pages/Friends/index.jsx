@@ -42,7 +42,7 @@ const Friends = ({ user }) => {
           mutate("fetch_request");
           mutate("fetch_userAuth");
           mutate("fetch_message");
-          window.location.reload();
+          mutate("fetch_profile");
         });
       }
     } else {
