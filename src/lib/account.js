@@ -22,7 +22,7 @@ export async function addProfile(formData) {
 
   if (error) {
     console.error(error);
-    return { status: 500, message: "Error inserting message" };
+    return { status: 500, message: `Error inserting message ${error}` };
   }
   return { status: 200, message: "Success" };
 }
