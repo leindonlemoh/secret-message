@@ -20,47 +20,49 @@ const Page = () => {
   const [hasProfile, setHasProfile] = useState(false);
   const router = useRouter();
   const tab = searchParams.get("tab");
+
   useEffect(() => {
     if (tab) {
       setIsActivePage(tab);
     }
   }, [tab]);
-  useEffect(() => {
+
+  const fetchUser = async () => {
     const supabase = createClient();
+    const { data, error } = await supabase.auth.getUser();
 
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Error fetching user:", error);
+      return;
+    }
 
-      if (error) {
-        console.error("Error fetching user:", error);
+    if (data?.user) {
+      setUser(data.user);
+
+      const { data: userProfile, error: profileError } = await supabase
+        .from("profile")
+        .select("*")
+        .eq("user_id", data.user.id)
+        .single();
+      setUserName(userProfile?.name);
+      setUserInfo(userProfile);
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
         return;
       }
 
-      if (data?.user) {
-        setUser(data.user);
-
-        const { data: userProfile, error: profileError } = await supabase
-          .from("profile")
-          .select("*")
-          .eq("user_id", data.user.id)
-          .single();
-        setUserName(userProfile?.name);
+      if (!userProfile) {
+        console.log("No profile found for this user.");
+        setHasProfile(false);
+      } else {
         setUserInfo(userProfile);
-        if (profileError) {
-          console.error("Error fetching user profile:", profileError);
-          return;
-        }
-
-        if (userProfile) {
-          setHasProfile(true);
-        } else {
-          setHasProfile(false);
-        }
+        setHasProfile(true);
       }
-    };
-
+    }
+  };
+  useEffect(() => {
     fetchUser();
-  }, [router]);
+  }, []);
   useEffect(() => {
     console.log(userInfo);
   }, [userInfo]);

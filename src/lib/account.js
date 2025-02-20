@@ -1,6 +1,5 @@
 "use server";
-// import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { revalidatePath } from "next/cache";
+
 import { createClient } from "../utils/supabase/server";
 const supabase = await createClient();
 
@@ -24,8 +23,6 @@ export async function addProfile(formData) {
   if (error) {
     console.error(error);
     return { status: 500, message: "Error inserting message" };
-  } else if (formData?.firstName == "" && formData?.lastName) {
-    return;
   }
   return { status: 200, message: "Success" };
 }

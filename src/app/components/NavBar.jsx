@@ -50,6 +50,12 @@ const NavBar = ({ setActive, active }) => {
               });
             }
           });
+        } else {
+          Swal.fire({
+            title: "Something Went wrong",
+            text: "Something",
+            icon: "error",
+          });
         }
       }
     });

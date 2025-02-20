@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { inputChange } from "../../lib/onChange";
 import { addProfile } from "../../lib/account";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 const CompleteAccount = () => {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [userInfo, setUserInfo] = useState({
     firstName: "",
     lastName: "",
   });
-  const refreshPage = () => {
-    router.replace(router.asPath, undefined, { scroll: false }); // This will refresh the page without reloading the entire page from the server.
-  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
     if (userInfo?.firstName == "" || userInfo?.lastName == "") {
@@ -22,16 +21,36 @@ const CompleteAccount = () => {
       });
       return;
     }
-    const response = await addProfile(userInfo);
-    if (response.status == 200) {
+    try {
+      startTransition(async () => {
+        const response = await addProfile(userInfo);
+        if (response.status == 200) {
+          Swal.fire({
+            title: "Successfully Registered",
+            text: response?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1000,
+          }).then(() => {
+            window.location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: "Somthing went wrong",
+            text: response?.message,
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1000,
+          });
+        }
+      });
+    } catch (error) {
       Swal.fire({
-        title: "Successfully Registered",
+        title: "Somthing went wrong",
         text: response?.message,
-        icon: "success",
+        icon: "error",
         showConfirmButton: false,
         timer: 1000,
-      }).then(() => {
-        window.location.reload();
       });
     }
   };
@@ -63,8 +82,9 @@ const CompleteAccount = () => {
           <button
             type="submit"
             className="bg-[#00FFFF] p-5 rounded-lg text-black text-2xl border-l"
+            disabled={isPending}
           >
-            Submit
+            {isPending ? "Processing" : "Submit"}
           </button>
         </div>
       </form>
