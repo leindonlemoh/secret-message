@@ -21,7 +21,7 @@ const Feed = ({ user }) => {
         confirmButtonText: "OK",
       }).then(() => {
         setIsLoading(false);
-        mutate("fetch_message"); // Revalidate after deletion
+        mutate("fetch_message");
       });
     }
   };
@@ -52,10 +52,6 @@ const Feed = ({ user }) => {
     isLoading: postLoading,
   } = useSWR("fetch_message", fetchPost, {
     refreshInterval: 10000,
-    revalidateOnFocus: true,
-    onSuccess: () => {
-      mutate("fetch_userAuth");
-    },
   });
 
   return (

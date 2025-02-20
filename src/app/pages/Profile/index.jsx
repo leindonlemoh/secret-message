@@ -36,7 +36,6 @@ const Profile = ({ name, user, userAuth }) => {
     isLoading,
   } = useSWR("fetch_message", fetchPost, {
     refreshInterval: 10000,
-    revalidateOnFocus: true, // Ensure data is refreshed when the tab comes into focus
   });
 
   const onDelete = async (e, id) => {

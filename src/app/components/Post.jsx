@@ -19,7 +19,6 @@ const Post = ({ content, isLoading, user, onDelete }) => {
     isLoading: profLoading,
   } = useSWR("fetch_profile", fetchProfile, {
     refreshInterval: 10000,
-    revalidateOnFocus: true, // Ensure data is refreshed when the tab comes into focus
   });
   const canRenderPost =
     profile[0]?.user_id === content?.user_id ||
