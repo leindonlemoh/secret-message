@@ -35,6 +35,7 @@ const CompleteAccount = () => {
             window.location.reload();
           });
         } else {
+          console.log(response.message);
           Swal.fire({
             title: "Somthing went wrong",
             text: response?.message,
@@ -45,6 +46,7 @@ const CompleteAccount = () => {
         }
       });
     } catch (error) {
+      console.log(error);
       Swal.fire({
         title: "Somthing went wrong",
         text: response?.message,
